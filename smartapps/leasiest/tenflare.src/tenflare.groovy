@@ -57,6 +57,30 @@ mappings {
 			GET: "listSubscriptions"
 		]
 	}
+    path("/alarm") {
+    	action: [
+      		GET: "getAlarmMode"
+    	]
+  	}
+
+	path("/alarm/:mode") {
+    	action: [
+      		PUT: "setAlarmMode"
+    	]
+ 	}
+}
+
+def getAlarmMode() {
+	def mode = location.currentState("alarmSystemStatus")?.value
+    log.debug(mode)
+    return ['mode': 'alarm '+ mode]
+	//sendLocationEvent(name: "alarmSystemStatus" , value : "away|stay|off" )
+}
+
+def setAlarmMode() {
+	def mode = params.mode
+    log.debug("setting SHM mode to: " + mode)
+	sendLocationEvent(name: "alarmSystemStatus", value: mode)
 }
 
 def installed() {
