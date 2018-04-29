@@ -26,20 +26,20 @@ preferences {
 
 mappings {
 	path("/alarm") {
-    action: [
-      GET: "getAlarmMode"
-    	]
-  	}
+        action: [
+            GET: "getAlarmMode"
+        ]
+    }
 	path("/alarm/:mode") {
-    	action: [
-      		PUT: "setAlarmMode"
-    	]
-  	}
+        action: [
+            PUT: "setAlarmMode"
+        ]
+    }
 	path("/subscriptions") {
-		action: [
-			GET: "listSubscriptions"
-		]
-	}
+        action: [
+            GET: "listSubscriptions"
+        ]
+    }
     path("/hub") {
     	action: [
       		GET: "installed"
