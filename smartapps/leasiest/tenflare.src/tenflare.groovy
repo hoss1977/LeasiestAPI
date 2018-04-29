@@ -63,18 +63,26 @@ mappings {
     	]
   	}
 
-	path("/alarm/:mode") {
+	path("/alarm/mode") {
     	action: [
       		PUT: "setAlarmMode"
     	]
  	}
-}
-
-def getAlarmMode() {
-	def mode = location.currentState("alarmSystemStatus")?.value
-    log.debug(mode)
-    return ['mode': 'alarm '+ mode]
-	//sendLocationEvent(name: "alarmSystemStatus" , value : "away|stay|off" )
+    path("/hub") {
+    	action: [
+      		GET: "installed"
+    	]
+  	}
+    path("/name") {
+    	action: [
+      		GET: "getName"
+    	]
+  	}
+    path("/child") {
+    	action: [
+      		GET: "getChildDevices"
+    	]
+  	}
 }
 
 def setAlarmMode() {
@@ -83,8 +91,23 @@ def setAlarmMode() {
 	sendLocationEvent(name: "alarmSystemStatus", value: mode)
 }
 
+def getAlarmMode() {
+	def mode = location.currentState("alarmSystemStatus")?.value
+    log.debug(mode)
+    return ['mode': mode]
+	sendLocationEvent(name: "alarmSystemStatus" , value : "away|stay|off" )
+}
+
 def installed() {
-	log.debug settings
+	def hub = location.hubs
+	log.debug (hub)
+    return ['hub': hub]
+}
+
+def getName() {
+	def hubName = location.name
+	log.debug (hubName)
+    return ['Hub Name': hubName]
 }
 
 def updated() {
@@ -146,6 +169,7 @@ def validateCommand(device, deviceType, command) {
 	def currentDeviceCapability = getCapabilityName(deviceType)
 	if (capabilityCommands[currentDeviceCapability]) {
 		return command in capabilityCommands[currentDeviceCapability] ? true : false
+    
 	} else {
 		// Handling other device types here, which don't accept commands
 		httpError(400, "Bad request.")
@@ -165,6 +189,8 @@ def getCapabilityName(type) {
 			return "Alarm"
 		case "locks":
 			return "Lock"
+        case "alarm":
+        	return "Mode"
 		default:
 			return type
 	}
@@ -191,7 +217,7 @@ def show() {
 
 	log.debug "[PROD] show, params: ${params}, devices: ${devices*.id}"
 	if (!device) {
-		httpError(404, "Device not found")
+		//httpError(404, "Device not found")
 	}
 	else {
 		def attributeName = attributeFor(type)
