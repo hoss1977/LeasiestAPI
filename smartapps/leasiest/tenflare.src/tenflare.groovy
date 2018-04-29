@@ -86,24 +86,10 @@ mappings {
 // combined function to return multiple device types minimize number of queries
 def getSensorStatus() {
 	def resp  = [:]
-    def contact = []
-    contactSensors.each {
-        contact << [name: it.displayName, value: it.currentValue("contact")]
-    }
-    def motion = []
-     motionSensors.each {
-        motion << [name: it.displayName, value: it.currentValue("motion")]
-    }
-    
-    def temperature = []
-    temperatureSensors.each {
-    	temperature << [name: it.displayName, value: it.currentValue("temperature")]
-    }
-    
-	resp.'contact'= contact
-    resp.'motion' = motion
     resp.'alarm' = getAlarmMode()
-    resp.'temperature' = temperature
+	resp.'contact'= getAttrforDevices(contactSensors, 'contact')
+    resp.'motion' = getAttrforDevices(motionSensors, 'motion')
+    resp.'temperature' = getAttrforDevices(temperatureSensors, 'temperature')
     return resp
 }
 
@@ -315,4 +301,12 @@ private attributeFor(type) {
 		default:
 			return type - "Sensors"
 	}
+}
+
+private getAttrforDevices(devices, attr) {
+    def resp = []
+    devices.each {
+        resp << [name: it.displayName, value: it.currentValue(attr)]
+    }	
+	return resp
 }
