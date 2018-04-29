@@ -57,17 +57,17 @@ mappings {
 			GET: "listSubscriptions"
 		]
 	}
-    path("/alarm") {
-    	action: [
-      		GET: "getAlarmMode"
+	path("/alarm") {
+    action: [
+      GET: "getAlarmMode"
     	]
   	}
 
-	path("/alarm/mode") {
+	path("/alarm/:mode") {
     	action: [
       		PUT: "setAlarmMode"
     	]
- 	}
+  	}
     path("/hub") {
     	action: [
       		GET: "installed"
@@ -78,31 +78,21 @@ mappings {
       		GET: "getName"
     	]
   	}
-    path("/label") {
-    	action: [
-      		GET: "devLabel"
-    	]
-  	}
 }
 
-def devLabel (){
-	def devName = device.displayName
-    log.debug(devName)
-    return ['Device Name': devName]
-	sendLocationEvent(name: "devLabel" , value : "" )
-}
 
-def setAlarmMode() {
-	def mode = params.mode
-    log.debug("setting SHM mode to: " + mode)
-	sendLocationEvent(name: "alarmSystemStatus", value: mode)
-}
 
 def getAlarmMode() {
 	def mode = location.currentState("alarmSystemStatus")?.value
     log.debug(mode)
     return ['mode': mode]
 	sendLocationEvent(name: "alarmSystemStatus" , value : "away|stay|off" )
+}
+
+def setAlarmMode() {
+	def mode = params.mode
+    log.debug("setting SHM mode to: " + mode)
+	sendLocationEvent(name: "alarmSystemStatus", value: mode)
 }
 
 def installed() {
@@ -149,7 +139,7 @@ def listSubscriptions() {
 
 def update() {
 	def type = params.deviceType
-	def data = request.JSON
+   	def data = request.JSON
 	def devices = settings[type]
 	def device = settings[type]?.find { it.id == params.id }
 	def command = data.command
@@ -176,7 +166,6 @@ def validateCommand(device, deviceType, command) {
 	def currentDeviceCapability = getCapabilityName(deviceType)
 	if (capabilityCommands[currentDeviceCapability]) {
 		return command in capabilityCommands[currentDeviceCapability] ? true : false
-    
 	} else {
 		// Handling other device types here, which don't accept commands
 		httpError(400, "Bad request.")
@@ -195,7 +184,7 @@ def getCapabilityName(type) {
 		case "alarms":
 			return "Alarm"
 		case "locks":
-			return "Lock"
+			return "Lock"           
 		default:
 			return type
 	}
@@ -222,7 +211,7 @@ def show() {
 
 	log.debug "[PROD] show, params: ${params}, devices: ${devices*.id}"
 	if (!device) {
-		//httpError(404, "Device not found")
+		httpError(404, "Device not found")
 	}
 	else {
 		def attributeName = attributeFor(type)
@@ -292,13 +281,13 @@ private deviceState(device, s) {
 private attributeFor(type) {
 	switch (type) {
 		case "switches":
-			return "switch"
+        return "switch"
 		case "locks":
 			return "lock"
 		case "alarms":
 			return "alarm"
 		case "lightSensors":
-			return "illuminance"
+			return "illuminance"           
 		default:
 			return type - "Sensors"
 	}
