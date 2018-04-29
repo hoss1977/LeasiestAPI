@@ -46,10 +46,15 @@ mappings {
     	]
   	}
     path("/name") {
-    	action: [
-      		GET: "getName"
-    	]
-  	}    
+        action: [
+            GET: "getName"
+        ]
+    }
+    path("/status") {
+        action: [
+            GET: "getSensorStatus"
+        ]
+    }
 	path("/:deviceType") {
 		action: [
 			GET: "list"
@@ -78,19 +83,40 @@ mappings {
 	}
 }
 
-
+// combined function to return multiple device types minimize number of queries
+def getSensorStatus() {
+	def resp  = [:]
+    def contact = []
+    contactSensors.each {
+        contact << [name: it.displayName, value: it.currentValue("contact")]
+    }
+    def motion = []
+     motionSensors.each {
+        motion << [name: it.displayName, value: it.currentValue("motion")]
+    }
+    
+    def temperature = []
+    temperatureSensors.each {
+    	temperature << [name: it.displayName, value: it.currentValue("temperature")]
+    }
+    
+	resp.'contact'= contact
+    resp.'motion' = motion
+    resp.'alarm' = getAlarmMode()
+    resp.'temperature' = temperature
+    return resp
+}
 
 def getAlarmMode() {
 	def mode = location.currentState("alarmSystemStatus")?.value
     log.debug(mode)
     return ['mode': mode]
-	sendLocationEvent(name: "alarmSystemStatus" , value : "away|stay|off" )
 }
 
 def setAlarmMode() {
-	def mode = params.mode
-    log.debug("setting SHM mode to: " + mode)
-	sendLocationEvent(name: "alarmSystemStatus", value: mode)
+	def new_mode = params.mode
+    log.debug("setting SHM mode to: " + new_mode)
+	sendLocationEvent(name: "alarmSystemStatus", value: new_mode)
 }
 
 def installed() {
