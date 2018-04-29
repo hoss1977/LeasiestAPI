@@ -78,11 +78,18 @@ mappings {
       		GET: "getName"
     	]
   	}
-    path("/child") {
+    path("/label") {
     	action: [
-      		GET: "getChildDevices"
+      		GET: "devLabel"
     	]
   	}
+}
+
+def devLabel (){
+	def devName = device.displayName
+    log.debug(devName)
+    return ['Device Name': devName]
+	sendLocationEvent(name: "devLabel" , value : "" )
 }
 
 def setAlarmMode() {
@@ -189,8 +196,6 @@ def getCapabilityName(type) {
 			return "Alarm"
 		case "locks":
 			return "Lock"
-        case "alarm":
-        	return "Mode"
 		default:
 			return type
 	}
