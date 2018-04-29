@@ -25,7 +25,31 @@ preferences {
 }
 
 mappings {
-
+	path("/alarm") {
+    action: [
+      GET: "getAlarmMode"
+    	]
+  	}
+	path("/alarm/:mode") {
+    	action: [
+      		PUT: "setAlarmMode"
+    	]
+  	}
+	path("/subscriptions") {
+		action: [
+			GET: "listSubscriptions"
+		]
+	}
+    path("/hub") {
+    	action: [
+      		GET: "installed"
+    	]
+  	}
+    path("/name") {
+    	action: [
+      		GET: "getName"
+    	]
+  	}    
 	path("/:deviceType") {
 		action: [
 			GET: "list"
@@ -52,32 +76,6 @@ mappings {
 			PUT: "update"
 		]
 	}
-	path("/subscriptions") {
-		action: [
-			GET: "listSubscriptions"
-		]
-	}
-	path("/alarm") {
-    action: [
-      GET: "getAlarmMode"
-    	]
-  	}
-
-	path("/alarm/:mode") {
-    	action: [
-      		PUT: "setAlarmMode"
-    	]
-  	}
-    path("/hub") {
-    	action: [
-      		GET: "installed"
-    	]
-  	}
-    path("/name") {
-    	action: [
-      		GET: "getName"
-    	]
-  	}
 }
 
 
