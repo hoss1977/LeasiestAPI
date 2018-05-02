@@ -96,6 +96,7 @@ def getSensorStatus() {
 	resp.'contact'= getAttrforDevices(contactSensors, 'contact')
     resp.'motion' = getAttrforDevices(motionSensors, 'motion')
     resp.'temperature' = getAttrforDevices(temperatureSensors, 'temperature')
+    resp.'battery' = getBatteries()
     return resp
 }
 
@@ -115,7 +116,7 @@ def getBatteries() {
 	log.debug("getting batteries")
 	def resp = []
      battery.each {
-      resp << [name: it.displayName, value: it.currentValue("battery")]
+      resp << [name: it.displayName, value: it.currentValue("battery")+ "%"]
     }
 
     return resp
@@ -313,7 +314,7 @@ private attributeFor(type) {
 		case "alarms":
 			return "alarm"
 		case "lightSensors":
-			return "illuminance"           
+			return "illuminance"  
 		default:
 			return type - "Sensors"
 	}
