@@ -21,6 +21,7 @@ preferences {
 		input "humiditySensors", "capability.relativeHumidityMeasurement", title: "Which Relative Humidity Sensors?", multiple: true, required: false
 		input "alarms", "capability.alarm", title: "Which Sirens?", multiple: true, required: false
 		input "locks", "capability.lock", title: "Which Locks?", multiple: true, required: false
+        input "battery", "capability.battery", title: "Which Batteries?", multiple: true, required: false
 	}
 }
 
@@ -28,6 +29,11 @@ mappings {
 	path("/alarm") {
         action: [
             GET: "getAlarmMode"
+        ]
+    }
+    path("/batteries") {
+        action: [
+            GET: "getBatteries"
         ]
     }
 	path("/alarm/:mode") {
@@ -103,6 +109,16 @@ def setAlarmMode() {
 	def new_mode = params.mode
     log.debug("setting SHM mode to: " + new_mode)
 	sendLocationEvent(name: "alarmSystemStatus", value: new_mode)
+}
+
+def getBatteries() {
+	log.debug("getting batteries")
+	def resp = []
+     battery.each {
+      resp << [name: it.displayName, value: it.currentValue("battery")]
+    }
+
+    return resp
 }
 
 def installed() {
@@ -194,7 +210,7 @@ def getCapabilityName(type) {
 		case "alarms":
 			return "Alarm"
 		case "locks":
-			return "Lock"           
+			return "Lock"
 		default:
 			return type
 	}
@@ -285,7 +301,7 @@ private deviceItem(it) {
 }
 
 private deviceState(device, s) {
-	device && s ? [id: device.id, label: device.displayName, name: s.name, value: s.value, unixTime: s.date.time] : null
+	device && s ? [id: device.id, label: device.displayName, name: s.name, value: s.value, sunixTime: s.date.time] : null
 }
 
 private attributeFor(type) {
