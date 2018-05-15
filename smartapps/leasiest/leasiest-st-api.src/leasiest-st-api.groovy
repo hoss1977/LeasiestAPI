@@ -36,9 +36,19 @@ mappings {
             GET: "getBatteries"
         ]
     }
-	path("/alarm/:mode") {
+    path("/mode") {
         action: [
-            PUT: "setAlarmMode"
+            GET: "getMode"
+        ]
+    }    
+    path("/locationMode/:mode_name") {
+       	action: [
+            PUT: "setCurrentMode"
+        ]
+    }
+   	path("/currentMode") {
+        action: [
+            GET: "getCurrentMode"
         ]
     }
 	path("/subscriptions") {
@@ -96,7 +106,6 @@ def getSensorStatus() {
 	resp.'contact'= getAttrforDevices(contactSensors, 'contact')
     resp.'motion' = getAttrforDevices(motionSensors, 'motion')
     resp.'temperature' = getAttrforDevices(temperatureSensors, 'temperature')
-    resp.'battery' = getBatteries()
     return resp
 }
 
@@ -112,11 +121,29 @@ def setAlarmMode() {
 	sendLocationEvent(name: "alarmSystemStatus", value: new_mode)
 }
 
+def getModes() {
+	def allModes = location.modes 
+    return allModes
+}
+def getCurrentMode () {
+	def currMode = location.mode // "Home", "Away", etc.
+	log.debug(currMode)
+    return ['current mode': currMode]
+}
+def setCurrentMode() {
+	def mode_name = params.mode_name
+    log.debug('attempting to set mode to ' + mode_name)
+	location.setMode(mode_name)
+
+    return ['current mode': mode_name]
+}    
+
+
 def getBatteries() {
 	log.debug("getting batteries")
 	def resp = []
      battery.each {
-      resp << [name: it.displayName, value: it.currentValue("battery")+ "%"]
+      resp << [name: it.displayName, value: it.currentValue("battery")]
     }
 
     return resp
@@ -314,7 +341,7 @@ private attributeFor(type) {
 		case "alarms":
 			return "alarm"
 		case "lightSensors":
-			return "illuminance"  
+			return "illuminance"           
 		default:
 			return type - "Sensors"
 	}
